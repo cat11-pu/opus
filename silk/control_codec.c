@@ -38,6 +38,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "stack_alloc.h"
 #include "tuning_parameters.h"
 #include "pitch_est_defines.h"
+#include "src/opus_ll_preset.h"
 
 static opus_int silk_setup_resamplers(
     silk_encoder_state_Fxx          *psEnc,             /* I/O                      */
@@ -389,6 +390,36 @@ static opus_int silk_setup_complexity(
     psEncC->pitchEstimationLPCOrder = silk_min_int( psEncC->pitchEstimationLPCOrder, psEncC->predictLPCOrder );
     psEncC->shapeWinLength          = SUB_FRAME_LENGTH_MS * psEncC->fs_kHz + 2 * psEncC->la_shape;
     psEncC->Complexity              = Complexity;
+
+#ifdef OPUS_LL_TIER
+#if OPUS_LL_TIER > 0
+    /* Low-latency presets: simplify the expensive searches on top of the
+       regular complexity mapping.  Every knob is only ever relaxed (the
+       cheaper of the table value and the preset value) so the preset never
+       adds work when the application already requested a low complexity.
+       All values stay inside the ranges asserted below, so bitstream
+       compatibility is unaffected. */
+    psEncC->pitchEstimationComplexity = silk_min_int(
+          psEncC->pitchEstimationComplexity, OPUS_LL_PE_COMPLEXITY );
+    psEncC->pitchEstimationLPCOrder   = silk_min_int(
+          psEncC->pitchEstimationLPCOrder, OPUS_LL_PE_LPC_ORDER );
+    psEncC->pitchEstimationLPCOrder   = silk_min_int(
+          psEncC->pitchEstimationLPCOrder, psEncC->predictLPCOrder );
+    psEncC->shapingLPCOrder           = silk_min_int(
+          psEncC->shapingLPCOrder, OPUS_LL_SHAPE_LPC_ORDER );
+    psEncC->nStatesDelayedDecision    = silk_min_int(
+          psEncC->nStatesDelayedDecision, OPUS_LL_DEL_DEC_STATES );
+    psEncC->NLSF_MSVQ_Survivors       = silk_min_int(
+          psEncC->NLSF_MSVQ_Survivors, OPUS_LL_NLSF_SURVIVORS );
+    psEncC->useInterpolatedNLSFs      = psEncC->useInterpolatedNLSFs &&
+                                        OPUS_LL_INTERP_NLSF;
+# if OPUS_LL_WARPING_ENABLED
+    psEncC->warping_Q16 = psEncC->fs_kHz * SILK_FIX_CONST( WARPING_MULTIPLIER, 16 );
+# else
+    psEncC->warping_Q16 = 0;
+# endif
+#endif
+#endif
 
     celt_assert( psEncC->pitchEstimationLPCOrder <= MAX_FIND_PITCH_LPC_ORDER );
     celt_assert( psEncC->shapingLPCOrder         <= MAX_SHAPE_LPC_ORDER      );

@@ -45,6 +45,7 @@
 #include "analysis.h"
 #include "mathops.h"
 #include "tuning_parameters.h"
+#include "src/opus_ll_preset.h"
 
 #ifdef ENABLE_DRED
 #include "dred_coding.h"
@@ -66,6 +67,42 @@
 #endif
 
 #define PSEUDO_SNR_THRESHOLD 316.23f    /* 10^(25/10) */
+
+#if OPUS_LL_ACTIVE
+/* Clamp the application-requested complexity to what the preset supports.
+   The encoder remains fully bitstream-compatible; this only trims searches. */
+static OPUS_INLINE int opus_ll_clamp_complexity(int complexity)
+{
+   return IMIN(complexity, OPUS_LL_COMPLEXITY_CLAMP);
+}
+
+/* CELT gets its own, slightly lower cap so its prefilter/TF analysis stays
+   in budget on the extreme tier. */
+static OPUS_INLINE int opus_ll_celt_complexity(int complexity)
+{
+   return IMIN(complexity, OPUS_LL_CELT_COMPLEXITY);
+}
+
+/* Bandwidth-aware cap on the SILK internal sample rate.  At low target
+   bitrates the high bands cannot be coded anyway, so running the internal
+   encoder at a lower rate saves NSQ, LPC and resampler work.  Returns 0 when
+   no preset cap applies for the given target rate. */
+static OPUS_INLINE opus_int32 opus_ll_rate_cap(opus_int32 bitrate_bps)
+{
+#if OPUS_LL_ENABLE_RATE_CAP
+   if (bitrate_bps <= 12000)
+      return OPUS_LL_RATE_CAP_12K;
+   if (bitrate_bps <= 24000 && OPUS_LL_RATE_CAP_24K > 0)
+      return OPUS_LL_RATE_CAP_24K;
+   if (bitrate_bps <= 32000 && OPUS_LL_RATE_CAP_32K > 0)
+      return OPUS_LL_RATE_CAP_32K;
+#endif
+   return 0;
+}
+#else
+#define opus_ll_clamp_complexity(c) (c)
+#define opus_ll_celt_complexity(c) (c)
+#endif
 
 typedef struct {
    opus_val32 XX, XY, YY;
@@ -281,7 +318,7 @@ int opus_encoder_init(OpusEncoder* st, opus_int32 Fs, int channels, int applicat
        err = celt_encoder_init(celt_enc, Fs, channels, st->arch);
        if(err!=OPUS_OK)return OPUS_INTERNAL_ERROR;
        celt_encoder_ctl(celt_enc, CELT_SET_SIGNALLING(0));
-       celt_encoder_ctl(celt_enc, OPUS_SET_COMPLEXITY(st->silk_mode.complexity));
+       celt_encoder_ctl(celt_enc, OPUS_SET_COMPLEXITY(opus_ll_celt_complexity(opus_ll_clamp_complexity(st->silk_mode.complexity))));
     }
 
 #ifdef ENABLE_DRED
@@ -1218,6 +1255,9 @@ opus_int32 opus_encode_native(OpusEncoder *st, const opus_res *pcm, int frame_si
 #ifdef ENABLE_DRED
     opus_int32 dred_bitrate_bps;
 #endif
+    /* Same effective-complexity clamp as the frame encoder; this wrapper
+       runs its own tonality analysis gate before dispatching frames. */
+    const int ll_eff_complexity = opus_ll_clamp_complexity(st->silk_mode.complexity);
     ALLOC_STACK;
 
 #ifdef ENABLE_QEXT
@@ -1254,9 +1294,9 @@ opus_int32 opus_encode_native(OpusEncoder *st, const opus_res *pcm, int frame_si
 #ifndef DISABLE_FLOAT_API
     analysis_info.valid = 0;
 #ifdef FIXED_POINT
-    if (st->silk_mode.complexity >= 10 && st->Fs>=16000 && st->Fs<=48000 && st->application != OPUS_APPLICATION_RESTRICTED_SILK)
+    if (ll_eff_complexity >= OPUS_LL_ANALYSIS_THRESHOLD && st->Fs>=16000 && st->Fs<=48000 && st->application != OPUS_APPLICATION_RESTRICTED_SILK)
 #else
-    if (st->silk_mode.complexity >= 7 && st->Fs>=16000 && st->Fs<=48000 && st->application != OPUS_APPLICATION_RESTRICTED_SILK)
+    if (ll_eff_complexity >= OPUS_LL_ANALYSIS_THRESHOLD && st->Fs>=16000 && st->Fs<=48000 && st->application != OPUS_APPLICATION_RESTRICTED_SILK)
 #endif
     {
        analysis_read_pos_bak = st->analysis.read_pos;
@@ -1415,7 +1455,7 @@ opus_int32 opus_encode_native(OpusEncoder *st, const opus_res *pcm, int frame_si
 
     /* Equivalent 20-ms rate for mode/channel/bandwidth decisions */
     equiv_rate = compute_equiv_rate(st->bitrate_bps, st->channels, st->Fs/frame_size,
-          st->use_vbr, 0, st->silk_mode.complexity, st->silk_mode.packetLossPercentage);
+          st->use_vbr, 0, ll_eff_complexity, st->silk_mode.packetLossPercentage);
 
     if (st->signal_type == OPUS_SIGNAL_VOICE)
        voice_est = 127;
@@ -1460,7 +1500,7 @@ opus_int32 opus_encode_native(OpusEncoder *st, const opus_res *pcm, int frame_si
     }
     /* Update equivalent rate for channels decision. */
     equiv_rate = compute_equiv_rate(st->bitrate_bps, st->stream_channels, st->Fs/frame_size,
-          st->use_vbr, 0, st->silk_mode.complexity, st->silk_mode.packetLossPercentage);
+          st->use_vbr, 0, ll_eff_complexity, st->silk_mode.packetLossPercentage);
 
     /* Allow SILK DTX if DTX is enabled but the generalized DTX cannot be used,
        e.g. because of the complexity setting or sample rate. */
@@ -1578,7 +1618,7 @@ opus_int32 opus_encode_native(OpusEncoder *st, const opus_res *pcm, int frame_si
 
     /* Update equivalent rate with mode decision. */
     equiv_rate = compute_equiv_rate(st->bitrate_bps, st->stream_channels, st->Fs/frame_size,
-          st->use_vbr, st->mode, st->silk_mode.complexity, st->silk_mode.packetLossPercentage);
+          st->use_vbr, st->mode, ll_eff_complexity, st->silk_mode.packetLossPercentage);
 
     if (st->mode != MODE_CELT_ONLY && st->prev_mode == MODE_CELT_ONLY)
     {
@@ -1910,6 +1950,12 @@ static opus_int32 opus_encode_frame_native(OpusEncoder *st, const opus_res *pcm,
     VARDECL(opus_res, tmp_prefill);
     SAVE_STACK;
 
+    /* Complexity actually applied to the coding engines.  The stored
+       st->silk_mode.complexity keeps the application-requested value (and is
+       what OPUS_GET_COMPLEXITY returns); the preset only relaxes the value
+       consumed by SILK, CELT, the analysis gate and rate decisions. */
+    const int ll_eff_complexity = opus_ll_clamp_complexity(st->silk_mode.complexity);
+
     max_data_bytes = IMIN(orig_max_data_bytes, 1276);
     st->rangeFinal = 0;
     if (st->application != OPUS_APPLICATION_RESTRICTED_CELT)
@@ -2066,6 +2112,12 @@ static opus_int32 opus_encode_frame_native(OpusEncoder *st, const opus_res *pcm,
     {
         opus_int32 total_bitRate, celt_rate;
         const opus_res *pcm_silk;
+        opus_int32 silk_complexity_req = st->silk_mode.complexity;
+
+        /* Apply the preset clamp only for the duration of the SILK work;
+           restore the requested value afterwards so GET and later frames
+           observe the application setting. */
+        st->silk_mode.complexity = ll_eff_complexity;
 
         /* Distribute bits between SILK and CELT */
         total_bitRate = bits_to_bitrate(bits_target, st->Fs, frame_size);
@@ -2167,6 +2219,22 @@ static opus_int32 opus_encode_frame_native(OpusEncoder *st, const opus_res *pcm,
 #endif
         }
 
+#if OPUS_LL_ACTIVE
+        {
+           /* Bandwidth-aware cap: when the target rate cannot justify the
+              upper bands, run the SILK internals at a lower sample rate.
+              Only tighten, never relax, the decision made above. */
+           opus_int32 ll_cap = opus_ll_rate_cap(st->bitrate_bps);
+           if (ll_cap > 0)
+           {
+              st->silk_mode.maxInternalSampleRate = IMIN(
+                     st->silk_mode.maxInternalSampleRate, ll_cap);
+              st->silk_mode.desiredInternalSampleRate = IMIN(
+                     st->silk_mode.desiredInternalSampleRate, ll_cap);
+           }
+        }
+#endif
+
         st->silk_mode.useCBR = !st->use_vbr;
 
         /* Call SILK encoder for the low band */
@@ -2233,6 +2301,7 @@ static opus_int32 opus_encode_frame_native(OpusEncoder *st, const opus_res *pcm,
         if( ret ) {
             /*fprintf (stderr, "SILK encode error: %d\n", ret);*/
             /* Handle error */
+           st->silk_mode.complexity = silk_complexity_req;
            RESTORE_STACK;
            return OPUS_INTERNAL_ERROR;
         }
@@ -2263,6 +2332,7 @@ static opus_int32 opus_encode_frame_native(OpusEncoder *st, const opus_res *pcm,
         {
            st->rangeFinal = 0;
            data[-1] = gen_toc(st->mode, st->Fs/frame_size, curr_bandwidth, st->stream_channels);
+           st->silk_mode.complexity = silk_complexity_req;
            RESTORE_STACK;
            return 1;
         }
@@ -2278,6 +2348,9 @@ static opus_int32 opus_encode_frame_native(OpusEncoder *st, const opus_res *pcm,
            celt_to_silk = 0;
            st->silk_bw_switch = 1;
         }
+        /* Restore the application-requested complexity for GET and later
+           frames (see ll_eff_complexity at the top of the function). */
+        st->silk_mode.complexity = silk_complexity_req;
     }
 
     /* CELT processing */
@@ -2304,6 +2377,7 @@ static opus_int32 opus_encode_frame_native(OpusEncoder *st, const opus_res *pcm,
         celt_encoder_ctl(celt_enc, CELT_SET_END_BAND(endband));
         celt_encoder_ctl(celt_enc, CELT_SET_CHANNELS(st->stream_channels));
         celt_encoder_ctl(celt_enc, OPUS_SET_BITRATE(OPUS_BITRATE_MAX));
+        celt_encoder_ctl(celt_enc, OPUS_SET_COMPLEXITY(opus_ll_celt_complexity(ll_eff_complexity)));
     }
     if (st->mode != MODE_SILK_ONLY)
     {
@@ -2961,9 +3035,12 @@ int opus_encoder_ctl(OpusEncoder *st, int request, ...)
             {
                goto bad_arg;
             }
+            /* Store the application-requested value unchanged so GET
+               returns it (API contract).  The low-latency preset clamps the
+               effective value at the SILK/CELT use sites instead. */
             st->silk_mode.complexity = value;
             if (st->application != OPUS_APPLICATION_RESTRICTED_SILK)
-               celt_encoder_ctl(celt_enc, OPUS_SET_COMPLEXITY(value));
+               celt_encoder_ctl(celt_enc, OPUS_SET_COMPLEXITY(opus_ll_celt_complexity(opus_ll_clamp_complexity(value))));
         }
         break;
         case OPUS_GET_COMPLEXITY_REQUEST:
