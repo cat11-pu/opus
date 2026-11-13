@@ -1,0 +1,17 @@
+PLC comparison  rate=20%  10 s @ 16000 Hz, frame 160 samples
+signal       loss     mode     | segSNR  ovSNR  envDB   | rmsCorr rmsBias    | clicks clips bdry maxJump
+--------------------------------------------------------------------------------------------------
+speechlike   random   repeat   |  39.61   4.58   0.82 |   0.975  0.035 |     62     0   54   0.696
+speechlike   random   enhanced |   0.45   5.00   2.41 |   0.940  0.089 |      0     0    0   0.280
+speechlike   bursty   repeat   |  22.37   3.76   1.72 |   0.961  0.065 |     58     0   34   0.761
+speechlike   bursty   enhanced |  -1.08   4.95   3.44 |   0.924  0.120 |      0     0    0   0.280
+pure_voiced  random   repeat   |  44.30   3.71   0.15 |   0.688  0.006 |    184     0  165   0.697
+pure_voiced  random   enhanced |   4.76   6.03   1.66 |   0.127  0.060 |      0     0    0   0.120
+pure_voiced  bursty   repeat   |  23.38   3.43   0.18 |   0.748  0.006 |    138     0   67   0.697
+pure_voiced  bursty   enhanced |   7.38   8.13   1.35 |   0.152  0.043 |      0     0    0   0.120
+noise        random   repeat   |  41.08   4.20   0.41 |   0.838  0.016 |     32     0   12   0.709
+noise        random   enhanced |   2.10   4.68   1.42 |   0.586  0.050 |      0     0    0   0.576
+noise        bursty   repeat   |  24.83   4.08   0.56 |   0.799  0.018 |     25     0    7   0.647
+noise        bursty   enhanced |   0.39   4.73   1.44 |   0.628  0.040 |      0     0    0   0.595
+--------------------------------------------------------------------------------------------------
+lost frames per mask: 193 / 1000 (19.3%)
