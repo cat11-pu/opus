@@ -1,0 +1,75 @@
+3/4 down polyphase: max_forward_offset=18 max_mirror_offset=18 table_capacity=27 out_of_bounds=0
+2/3 down polyphase: max_forward_offset=9 max_mirror_offset=9 table_capacity=18 out_of_bounds=0
+IIR/FIR 12-frac: max_forward_offset=44 max_mirror_offset=44 table_capacity=48 out_of_bounds=0
+HQ 8000 -> 12000: THD+N=-93.53 dB THD=-111.90 dBc slew=0.989 mismatch=0 top: 5001/-102.7; 3000/-102.9; 2999/-108.8; 5000/-109.2;
+
+8000 -> 12000 Hz (IIR_FIR, f0=1000.5 Hz, THD+N=-83.64 dB, THD=-97.70 dBc, slew_ratio=1.072, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 3000/-88.4; 5001/-89.6; 2999/-94.3; 5000/-95.5; 3001/-100.2; 5002/-101.3; 2997/-102.0; 4998/-103.6;
+HQ 8000 -> 16000: THD+N=-101.64 dB THD=-101.64 dBc slew=0.975 mismatch=0 top: 5000/-104.7; 7000/-105.5; 3000/-111.9; 2/-inf;
+
+8000 -> 16000 Hz (up2_HQ, f0=1000.0 Hz, THD+N=-95.66 dB, THD=-95.66 dBc, slew_ratio=1.071, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 5000/-98.6; 3000/-99.2; 7000/-108.7; 2/-inf; 4/-inf; 6/-inf; 8/-inf; 10/-inf;
+HQ 8000 -> 24000: THD+N=-93.56 dB THD=-115.25 dBc slew=1.674 mismatch=0 top: 6999/-102.8; 9000/-103.2; 9001/-108.9; 7000/-109.0;
+
+8000 -> 24000 Hz (IIR_FIR, f0=1000.5 Hz, THD+N=-83.67 dB, THD=-104.12 dBc, slew_ratio=1.081, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 9000/-88.4; 6999/-89.6; 9001/-94.3; 7000/-95.5; 8999/-100.5; 6998/-101.5; 9003/-102.3; 7002/-103.4;
+HQ 8000 -> 48000: THD+N=-93.48 dB THD=-119.86 dBc slew=4.321 mismatch=0 top: 15000/-102.8; 17001/-102.8; 14999/-108.7; 17000/-108.8;
+
+8000 -> 48000 Hz (IIR_FIR, f0=1000.5 Hz, THD+N=-83.54 dB, THD=-109.69 dBc, slew_ratio=1.097, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 15000/-88.5; 17001/-89.2; 14999/-94.4; 17000/-95.2; 15001/-100.5; 17002/-101.2; 14997/-102.4; 16998/-103.0;
+HQ 12000 -> 8000: THD+N=-101.53 dB THD=-101.53 dBc slew=0.900 mismatch=0 top: 3000/-101.5; 2/-inf; 4/-inf; 6/-inf;
+
+12000 -> 8000 Hz (down_FIR, f0=1000.0 Hz, THD+N=-86.02 dB, THD=-86.15 dBc, slew_ratio=0.942, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 3000/-86.3; 2000/-101.3; 2/-inf; 4/-inf; 6/-inf; 8/-inf; 10/-inf; 12/-inf;
+HQ 12000 -> 16000: THD+N=-101.64 dB THD=-101.64 dBc slew=0.975 mismatch=0 top: 5000/-104.7; 7000/-105.5; 3000/-111.9; 2/-inf;
+
+12000 -> 16000 Hz (IIR_FIR, f0=1000.0 Hz, THD+N=-85.08 dB, THD=-85.08 dBc, slew_ratio=1.073, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 7000/-85.2; 5000/-100.8; 3000/-107.8; 2/-inf; 4/-inf; 6/-inf; 8/-inf; 10/-inf;
+HQ 12000 -> 24000: THD+N=-95.99 dB THD=-121.78 dBc slew=0.997 mismatch=0 top: 166/-118.9; 2755/-119.2; 163/-119.2; 1595/-119.8;
+
+12000 -> 24000 Hz (up2_HQ, f0=1000.5 Hz, THD+N=-94.01 dB, THD=-123.94 dBc, slew_ratio=1.078, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 11000/-111.5; 640/-118.2; 5099/-118.6; 2005/-118.6; 1595/-118.9; 2990/-119.5; 4390/-119.6; 2495/-119.8;
+HQ 12000 -> 48000: THD+N=-95.68 dB THD=-122.92 dBc slew=2.908 mismatch=0 top: 2184/-119.3; 1973/-119.5; 1370/-119.8; 2495/-119.9;
+
+12000 -> 48000 Hz (IIR_FIR, f0=1000.5 Hz, THD+N=-83.81 dB, THD=-120.60 dBc, slew_ratio=1.116, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 23000/-84.4; 5099/-117.7; 11000/-117.7; 1595/-118.0; 1973/-118.2; 2005/-118.2; 4390/-119.0; 1750/-119.2;
+HQ 16000 -> 8000: THD+N=-101.53 dB THD=-101.53 dBc slew=0.900 mismatch=0 top: 3000/-101.5; 2/-inf; 4/-inf; 6/-inf;
+
+16000 -> 8000 Hz (down_FIR, f0=1000.0 Hz, THD+N=-94.93 dB, THD=-97.60 dBc, slew_ratio=0.954, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 2000/-98.3; 3000/-105.7; 2/-inf; 4/-inf; 6/-inf; 8/-inf; 10/-inf; 12/-inf;
+HQ 16000 -> 12000: THD+N=-94.73 dB THD=-114.61 dBc slew=0.989 mismatch=0 top: 5001/-106.7; 3000/-107.3; 2999/-112.1; 5000/-113.1;
+
+16000 -> 12000 Hz (down_FIR, f0=1000.5 Hz, THD+N=-79.42 dB, THD=-93.30 dBc, slew_ratio=1.018, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 3000/-81.5; 2999/-87.6; 5001/-92.4; 3001/-93.6; 2997/-95.7; 3003/-98.5; 5000/-98.5; 2996/-99.6;
+HQ 16000 -> 24000: THD+N=-94.37 dB THD=-114.05 dBc slew=0.997 mismatch=0 top: 9000/-106.4; 6999/-106.7; 9001/-112.3; 7000/-112.7;
+
+16000 -> 24000 Hz (IIR_FIR, f0=1000.5 Hz, THD+N=-87.58 dB, THD=-108.84 dBc, slew_ratio=1.093, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 9000/-91.2; 9001/-97.1; 8999/-103.2; 6999/-103.9; 9003/-104.7; 8997/-107.6; 9004/-109.3; 7000/-110.1;
+HQ 16000 -> 48000: THD+N=-94.34 dB THD=-115.33 dBc slew=1.916 mismatch=0 top: 15000/-106.4; 17001/-106.7; 14999/-112.4; 17000/-112.5;
+
+16000 -> 48000 Hz (IIR_FIR, f0=1000.5 Hz, THD+N=-87.61 dB, THD=-113.77 dBc, slew_ratio=1.183, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 15000/-91.1; 14999/-97.1; 15001/-103.2; 17001/-103.9; 14997/-105.0; 15003/-107.8; 14996/-109.1; 17000/-110.0;
+HQ 24000 -> 8000: THD+N=-101.53 dB THD=-101.53 dBc slew=0.900 mismatch=0 top: 3000/-101.5; 2/-inf; 4/-inf; 6/-inf;
+
+24000 -> 8000 Hz (down_FIR, f0=1000.0 Hz, THD+N=-94.97 dB, THD=-97.66 dBc, slew_ratio=0.944, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 2000/-98.3; 3000/-106.1; 2/-inf; 4/-inf; 6/-inf; 8/-inf; 10/-inf; 12/-inf;
+HQ 24000 -> 12000: THD+N=-96.81 dB THD=-123.36 dBc slew=0.989 mismatch=0 top: 1961/-118.3; 1809/-118.6; 1370/-118.6; 2082/-119.4;
+
+24000 -> 12000 Hz (down_FIR, f0=1000.5 Hz, THD+N=-95.07 dB, THD=-125.08 dBc, slew_ratio=0.986, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 2509/-120.1; 368/-120.2; 1513/-120.3; 1012/-121.0; 2237/-121.1; 5410/-121.3; 875/-121.5; 5899/-121.7;
+HQ 24000 -> 16000: THD+N=-101.64 dB THD=-101.64 dBc slew=0.975 mismatch=0 top: 5000/-104.7; 7000/-105.5; 3000/-111.9; 2/-inf;
+
+24000 -> 16000 Hz (down_FIR, f0=1000.0 Hz, THD+N=-84.52 dB, THD=-84.54 dBc, slew_ratio=0.987, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 7000/-84.7; 3000/-103.3; 6000/-107.3; 4000/-107.3; 2000/-107.3; 5000/-110.8; 2/-inf; 4/-inf;
+HQ 48000 -> 8000: THD+N=-101.53 dB THD=-101.53 dBc slew=0.900 mismatch=0 top: 3000/-101.5; 2/-inf; 4/-inf; 6/-inf;
+
+48000 -> 8000 Hz (down_FIR, f0=1000.0 Hz, THD+N=-101.73 dB, THD=-101.73 dBc, slew_ratio=0.920, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 3000/-101.7; 2/-inf; 4/-inf; 6/-inf; 8/-inf; 10/-inf; 12/-inf; 14/-inf;
+HQ 48000 -> 12000: THD+N=-96.87 dB THD=-125.02 dBc slew=0.989 mismatch=0 top: 5638/-118.6; 2509/-119.5; 2990/-119.6; 1370/-119.7;
+
+48000 -> 12000 Hz (down_FIR, f0=1000.5 Hz, THD+N=-95.37 dB, THD=-127.03 dBc, slew_ratio=0.991, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 176/-122.9; 5479/-123.2; 4232/-123.3; 1484/-123.5; 2962/-123.7; 1862/-123.9; 2380/-124.1; 3841/-124.2;
+HQ 48000 -> 16000: THD+N=-101.64 dB THD=-101.64 dBc slew=0.975 mismatch=0 top: 5000/-104.7; 7000/-105.5; 3000/-111.9; 2/-inf;
+
+48000 -> 16000 Hz (down_FIR, f0=1000.0 Hz, THD+N=-94.90 dB, THD=-96.34 dBc, slew_ratio=0.989, chunk_mismatch=0)
+  top non-fundamental bins (Hz / dBc): 2000/-102.6; 6000/-102.6; 3000/-103.4; 7000/-104.3; 5000/-106.7; 4000/-107.4; 2/-inf; 4/-inf;
