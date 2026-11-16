@@ -71,6 +71,34 @@
 #define FRAME_PLC_NEURAL   4
 #define FRAME_DRED         5
 
+static OPUS_INLINE celt_sig sig_add_sat(celt_sig a, celt_sig b)
+{
+#ifdef FIXED_POINT
+   opus_int64 sum = (opus_int64)a + (opus_int64)b;
+   if (sum > SIG_SAT)
+      return SIG_SAT;
+   if (sum < -SIG_SAT)
+      return -SIG_SAT;
+   return (celt_sig)sum;
+#else
+   return a+b;
+#endif
+}
+
+static OPUS_INLINE celt_sig sig_sub_sat(celt_sig a, celt_sig b)
+{
+#ifdef FIXED_POINT
+   opus_int64 diff = (opus_int64)a - (opus_int64)b;
+   if (diff > SIG_SAT)
+      return SIG_SAT;
+   if (diff < -SIG_SAT)
+      return -SIG_SAT;
+   return (celt_sig)diff;
+#else
+   return a-b;
+#endif
+}
+
 /**********************************************************************/
 /*                                                                    */
 /*                             DECODER                                */
@@ -1105,14 +1133,14 @@ static void celt_decode_lost(CELTDecoder * OPUS_RESTRICT st, int N, int LM
                opus_val16 w1 = COEF2VAL16(window[i]);
                opus_val16 w2 = COEF2VAL16(window[overlap-1-i]);
                celt_sig x2 = old_overlap[i];
-               celt_sig x1 = SUB32(MULT16_32_Q15(w2, etmp[overlap-1-i]),
+               celt_sig x1 = sig_sub_sat(MULT16_32_Q15(w2, etmp[overlap-1-i]),
                      MULT16_32_Q15(w1, etmp[i]));
-               buf[decode_buffer_size-N+i] = SATURATE(
-                     SUB32(MULT16_32_Q15(w2, x2), MULT16_32_Q15(w1, x1)),
-                     SIG_SAT);
-               buf[decode_buffer_size-N+overlap-1-i] = SATURATE(
-                     ADD32(MULT16_32_Q15(w1, x2), MULT16_32_Q15(w2, x1)),
-                     SIG_SAT);
+               buf[decode_buffer_size-N+i] =
+                     sig_sub_sat(MULT16_32_Q15(w2, x2),
+                                 MULT16_32_Q15(w1, x1));
+               buf[decode_buffer_size-N+overlap-1-i] =
+                     sig_add_sat(MULT16_32_Q15(w1, x2),
+                                 MULT16_32_Q15(w2, x1));
             }
             comb_filter(buf+decode_buffer_size-N, buf+decode_buffer_size-N,
                   st->postfilter_period_old, st->postfilter_period_old, overlap,

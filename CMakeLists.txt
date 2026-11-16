@@ -721,6 +721,18 @@ if(BUILD_TESTING AND NOT BUILD_SHARED_LIBS)
            -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
            -P "${PROJECT_SOURCE_DIR}/cmake/RunTest.cmake")
 
+  add_executable(test_opus_malformed ${test_opus_malformed_sources})
+  target_include_directories(test_opus_malformed
+                             PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+  target_link_libraries(test_opus_malformed PRIVATE opus)
+  if(OPUS_FIXED_POINT)
+    target_compile_definitions(test_opus_malformed PRIVATE FIXED_POINT)
+  endif()
+  add_test(NAME test_opus_malformed COMMAND ${CMAKE_COMMAND}
+           -DTEST_EXECUTABLE=$<TARGET_FILE:test_opus_malformed>
+           -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
+           -P "${PROJECT_SOURCE_DIR}/cmake/RunTest.cmake")
+
   add_executable(test_opus_padding ${test_opus_padding_sources})
   target_include_directories(test_opus_padding
                              PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

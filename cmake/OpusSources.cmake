@@ -64,6 +64,8 @@ get_opus_sources(tests_test_opus_extensions_SOURCES Makefile.am
                  test_opus_extensions_sources)
 get_opus_sources(tests_test_opus_decode_SOURCES Makefile.am
                  test_opus_decode_sources)
+get_opus_sources(tests_test_opus_malformed_SOURCES Makefile.am
+                 test_opus_malformed_sources)
 get_opus_sources(tests_test_opus_padding_SOURCES Makefile.am
                  test_opus_padding_sources)
 get_opus_sources(tests_test_opus_dred_SOURCES Makefile.am

@@ -39,6 +39,7 @@
 #endif
 
 #include <stdarg.h>
+#include <limits.h>
 #include "celt.h"
 #include "opus.h"
 #include "entdec.h"
@@ -1270,6 +1271,8 @@ void opus_decoder_destroy(OpusDecoder *st)
 int opus_packet_get_bandwidth(const unsigned char *data)
 {
    int bandwidth;
+   if (data == NULL)
+      return OPUS_BAD_ARG;
    if (data[0]&0x80)
    {
       bandwidth = OPUS_BANDWIDTH_MEDIUMBAND + ((data[0]>>5)&0x3);
@@ -1287,13 +1290,15 @@ int opus_packet_get_bandwidth(const unsigned char *data)
 
 int opus_packet_get_nb_channels(const unsigned char *data)
 {
+   if (data == NULL)
+      return OPUS_BAD_ARG;
    return (data[0]&0x4) ? 2 : 1;
 }
 
 int opus_packet_get_nb_frames(const unsigned char packet[], opus_int32 len)
 {
    int count;
-   if (len<1)
+   if (packet == NULL || len<1)
       return OPUS_BAD_ARG;
    count = packet[0]&0x3;
    if (count==0)
@@ -1309,18 +1314,21 @@ int opus_packet_get_nb_frames(const unsigned char packet[], opus_int32 len)
 int opus_packet_get_nb_samples(const unsigned char packet[], opus_int32 len,
       opus_int32 Fs)
 {
-   int samples;
+   opus_int64 samples;
    int count = opus_packet_get_nb_frames(packet, len);
 
    if (count<0)
       return count;
+   if (Fs <= 0)
+      return OPUS_BAD_ARG;
 
-   samples = count*opus_packet_get_samples_per_frame(packet, Fs);
+   samples = (opus_int64)count*opus_packet_get_samples_per_frame(packet, Fs);
    /* Can't have more than 120 ms */
-   if (samples*25 > Fs*3)
+   if (samples <= 0 || samples > INT_MAX
+    || samples*25 > (opus_int64)Fs*3)
       return OPUS_INVALID_PACKET;
    else
-      return samples;
+      return (int)samples;
 }
 
 int opus_packet_has_lbrr(const unsigned char packet[], opus_int32 len)
@@ -1332,6 +1340,8 @@ int opus_packet_has_lbrr(const unsigned char packet[], opus_int32 len)
    int nb_frames=1;
    int lbrr;
 
+   if (packet == NULL || len < 1)
+      return OPUS_BAD_ARG;
    packet_mode = opus_packet_get_mode(packet);
    if (packet_mode == MODE_CELT_ONLY)
       return 0;

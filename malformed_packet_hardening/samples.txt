@@ -1,0 +1,10 @@
+# name hex
+truncated_toc                03
+zero_frame_count             0300
+excessive_duration           0318
+truncated_vbr_size           0382fc
+vbr_size_past_end            02050000
+padding_past_end             0341fffe
+frame_past_limit             00 followed by 1276 zero bytes
+valid_silk_8k_mono_20ms      0884c17b61eb1f644a1c54a371c94d56037bab1eb1a8
+valid_celt_48k_stereo_10ms   f4b53f0f33d7564963e278714297f597da9d511ef6db9c57c03873aa429dc8cb5b8faff7528e7d0dc1df654c5702e135babc84d007a6f2efb35ecd74bd2c5a10420175cc505a48656401daf7576e7734e1207f0ff06cc18d2ce6c08bfc654a091157a1085424ca0bc6be83367a0e36f2e3798ba8126eda3a97f96f63996c16fd03d71336e7a73fa5fc371dc783db233e71067f6d4206f2e5a9d4e85162b1a4b1f7eccf11e2641befe74eb99af838915402ad2ef7be124c35f5c7134018a2f7fbe8f69b172ed09c91affaafeaa0abfeeb

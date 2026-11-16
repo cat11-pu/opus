@@ -1,0 +1,29 @@
+Opus malformed-packet hardening results
+=======================================
+
+Build: Debug, ENABLE_ASSERTIONS, ENABLE_HARDENING
+Sanitizers: AddressSanitizer + UndefinedBehaviorSanitizer
+Sanitizer policy: halt_on_error=1, abort_on_error=1, leak detection off
+
+Float-point build
+-----------------
+truncation_toc_cases=464 rejected=128 decoded_dtx=336
+mutation_cases=1000000 rejected=444021 accepted=555979
+result=OK crashes=0 oob=0
+
+Fixed-point build
+-----------------
+truncation_toc_cases=463 rejected=128 decoded_dtx=335
+mutation_cases=1000000 rejected=439942 accepted=560058
+result=OK crashes=0 oob=0
+
+Regression suite
+----------------
+ctest: 6/6 passed
+
+Valid-output comparison against commit 0145a624
+-----------------------------------------------
+float: VALID_PCM_IDENTICAL=yes
+fixed: FIXED_PCM_IDENTICAL=yes
+silk_8k_mono_20ms.sha256=9381a97f00cb1bced8e620359dba5a7653d4e9adc851e0cb434445b4a86dfb27
+celt_48k_stereo_10ms.sha256=0c6f4a11fc61f11bd4d8bcdc344955e8e7756ae5a4d238dfadf24647698c9e70

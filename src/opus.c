@@ -204,19 +204,21 @@ int opus_packet_get_samples_per_frame(const unsigned char *data,
       opus_int32 Fs)
 {
    int audiosize;
+   if (data == NULL || Fs <= 0)
+      return OPUS_BAD_ARG;
    if (data[0]&0x80)
    {
       audiosize = ((data[0]>>3)&0x3);
-      audiosize = (Fs<<audiosize)/400;
+      audiosize = (int)(((opus_int64)Fs<<audiosize)/400);
    } else if ((data[0]&0x60) == 0x60)
    {
       audiosize = (data[0]&0x08) ? Fs/50 : Fs/100;
    } else {
       audiosize = ((data[0]>>3)&0x3);
       if (audiosize == 3)
-         audiosize = Fs*60/1000;
+         audiosize = (int)((opus_int64)Fs*60/1000);
       else
-         audiosize = (Fs<<audiosize)/100;
+         audiosize = (int)(((opus_int64)Fs<<audiosize)/100);
    }
    return audiosize;
 }
@@ -235,6 +237,7 @@ int opus_packet_parse_impl(const unsigned char *data, opus_int32 len,
    opus_int32 last_size;
    opus_int32 pad = 0;
    const unsigned char *data0 = data;
+   opus_int32 packet_len;
 
    /* Make sure we return NULL/0 on error. */
    if (padding != NULL)
@@ -242,11 +245,16 @@ int opus_packet_parse_impl(const unsigned char *data, opus_int32 len,
       *padding = NULL;
       *padding_len = 0;
    }
+   if (payload_offset != NULL)
+      *payload_offset = 0;
+   if (packet_offset != NULL)
+      *packet_offset = 0;
 
-   if (size==NULL || len<0)
+   if (data==NULL || size==NULL || len<0)
       return OPUS_BAD_ARG;
    if (len==0)
       return OPUS_INVALID_PACKET;
+   packet_len = len;
 
    framesize = opus_packet_get_samples_per_frame(data, 48000);
 
@@ -370,10 +378,18 @@ int opus_packet_parse_impl(const unsigned char *data, opus_int32 len,
 
    for (i=0;i<count;i++)
    {
+      opus_int32 data_offset = (opus_int32)(data-data0);
+      if (size[i] < 0 || size[i] > 1275 || data_offset > packet_len
+       || size[i] > packet_len-data_offset)
+         return OPUS_INVALID_PACKET;
       if (frames)
          frames[i] = data;
       data += size[i];
    }
+
+   if (pad < 0 || (opus_int32)(data-data0) > packet_len
+    || pad > packet_len-(opus_int32)(data-data0))
+      return OPUS_INVALID_PACKET;
 
    if (padding != NULL)
    {

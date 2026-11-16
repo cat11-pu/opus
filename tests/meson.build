@@ -4,6 +4,7 @@ opus_tests = [
   ['test_opus_decode', [], 120],
   ['test_opus_encode', 'opus_encode_regressions.c', 240],
   ['test_opus_extensions', [], 120],
+  ['test_opus_malformed'],
   ['test_opus_padding'],
   ['test_opus_projection'],
 ]
