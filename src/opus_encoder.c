@@ -101,6 +101,7 @@ struct OpusEncoder {
     int          arch;
     int          use_dtx;                 /* general DTX for both SILK and CELT */
     int          fec_config;
+    int          inband_redundancy_percent;
 #ifndef DISABLE_FLOAT_API
     TonalityAnalysisState analysis;
 #endif
@@ -2985,6 +2986,8 @@ int opus_encoder_ctl(OpusEncoder *st, int request, ...)
             }
             st->fec_config = value;
             st->silk_mode.useInBandFEC = (value != 0);
+            if (!value)
+               st->inband_redundancy_percent = 0;
         }
         break;
         case OPUS_GET_INBAND_FEC_REQUEST:
@@ -2995,6 +2998,35 @@ int opus_encoder_ctl(OpusEncoder *st, int request, ...)
                goto bad_arg;
             }
             *value = st->fec_config;
+        }
+        break;
+        case OPUS_SET_INBAND_REDUNDANCY_REQUEST:
+        {
+            opus_int32 value = va_arg(ap, opus_int32);
+            if(value<0 || value>30)
+            {
+               goto bad_arg;
+            }
+            st->inband_redundancy_percent = value;
+            if (value > 0)
+            {
+               st->fec_config = 1;
+               st->silk_mode.useInBandFEC = 1;
+            } else {
+               st->fec_config = 0;
+               st->silk_mode.useInBandFEC = 0;
+               st->silk_mode.LBRR_coded = 0;
+            }
+        }
+        break;
+        case OPUS_GET_INBAND_REDUNDANCY_REQUEST:
+        {
+            opus_int32 *value = va_arg(ap, opus_int32*);
+            if (!value)
+            {
+               goto bad_arg;
+            }
+            *value = st->inband_redundancy_percent;
         }
         break;
         case OPUS_SET_PACKET_LOSS_PERC_REQUEST:

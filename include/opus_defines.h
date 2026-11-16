@@ -179,6 +179,8 @@ extern "C" {
 #define OPUS_GET_QEXT_REQUEST 4057
 #define OPUS_SET_IGNORE_EXTENSIONS_REQUEST 4058
 #define OPUS_GET_IGNORE_EXTENSIONS_REQUEST 4059
+#define OPUS_SET_INBAND_REDUNDANCY_REQUEST 4060
+#define OPUS_GET_INBAND_REDUNDANCY_REQUEST 4061
 
 /** Defines for the presence of extended APIs. */
 #define OPUS_HAVE_OPUS_PROJECTION_H
@@ -525,6 +527,38 @@ extern "C" {
   * @hideinitializer */
 #define OPUS_GET_INBAND_FEC(x) OPUS_GET_INBAND_FEC_REQUEST, opus_check_int_ptr(x)
 
+/** Configures the encoder's in-band redundancy budget.
+  *
+  * When enabled, the encoder places a low-bitrate copy of the previous frame
+  * in the same packet as the current frame.  The copy is used by the decoder
+  * when the previous packet is lost.  The amount of redundancy is selected
+  * automatically from the packet loss estimate configured with
+  * OPUS_SET_PACKET_LOSS_PERC().
+  *
+  * This is a SILK/LPC feature.  The copy is allocated from the configured
+  * target bitrate, so enabling it does not increase the rate of the stream.
+  * If the configured bitrate or loss estimate does not leave room for a
+  * useful copy, the encoder sends the primary frame alone.
+  *
+  * To recover a lost packet, call opus_decode() on the following packet with
+  * decode_fec set to 1 before decoding that following packet normally.  The
+  * recovery call returns the duration of the lost frame.  Applications can
+  * use opus_packet_has_lbrr() to check whether the following packet contains
+  * a backup copy.
+  *
+  * @see OPUS_GET_INBAND_REDUNDANCY
+  * @see OPUS_SET_PACKET_LOSS_PERC
+  * @see OPUS_SET_INBAND_FEC
+  * @param[in] x <tt>opus_int32</tt>: Maximum allowed bandwidth increase in
+  *                                   percent, in the range 0-30, inclusive.
+  *                                   Zero disables in-band redundancy.
+  * @hideinitializer */
+#define OPUS_SET_INBAND_REDUNDANCY(x) OPUS_SET_INBAND_REDUNDANCY_REQUEST, opus_check_int(x)
+/** Gets the encoder's configured in-band redundancy budget.
+  * @see OPUS_SET_INBAND_REDUNDANCY
+  * @param[out] x <tt>opus_int32 *</tt>: Maximum allowed bandwidth increase in percent.
+  * @hideinitializer */
+#define OPUS_GET_INBAND_REDUNDANCY(x) OPUS_GET_INBAND_REDUNDANCY_REQUEST, opus_check_int_ptr(x)
 /** Configures the encoder's expected packet loss percentage.
   * Higher values trigger progressively more loss resistant behavior in the encoder
   * at the expense of quality at a given bitrate in the absence of packet loss, but

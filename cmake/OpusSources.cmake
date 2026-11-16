@@ -60,6 +60,8 @@ get_opus_sources(osce_compare_SOURCES Makefile.am osce_compare_sources)
 get_opus_sources(tests_test_opus_api_SOURCES Makefile.am test_opus_api_sources)
 get_opus_sources(tests_test_opus_encode_SOURCES Makefile.am
                  test_opus_encode_sources)
+get_opus_sources(tests_test_opus_inband_redundancy_SOURCES Makefile.am
+                 test_opus_inband_redundancy_sources)
 get_opus_sources(tests_test_opus_extensions_SOURCES Makefile.am
                  test_opus_extensions_sources)
 get_opus_sources(tests_test_opus_decode_SOURCES Makefile.am

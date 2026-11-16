@@ -753,6 +753,16 @@ if(BUILD_TESTING AND NOT BUILD_SHARED_LIBS)
         -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
         -P "${PROJECT_SOURCE_DIR}/cmake/RunTest.cmake")
 
+  add_executable(test_opus_inband_redundancy ${test_opus_inband_redundancy_sources})
+  target_include_directories(test_opus_inband_redundancy
+                            PRIVATE ${CMAKE_CURRENT_BINARY_DIR} celt dnn)
+  target_link_libraries(test_opus_inband_redundancy PRIVATE opus)
+  target_compile_definitions(test_opus_inband_redundancy PRIVATE OPUS_BUILD)
+  add_test(NAME test_opus_inband_redundancy COMMAND ${CMAKE_COMMAND}
+        -DTEST_EXECUTABLE=$<TARGET_FILE:test_opus_inband_redundancy>
+        -DCMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME}
+        -P "${PROJECT_SOURCE_DIR}/cmake/RunTest.cmake")
+
   add_executable(test_opus_extensions ${test_opus_extensions_sources})
   target_include_directories(test_opus_extensions
                             PRIVATE ${CMAKE_CURRENT_BINARY_DIR} celt dnn)

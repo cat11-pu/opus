@@ -1315,6 +1315,16 @@ opus_int32 test_enc_api(void)
      "    OPUS_SET_INBAND_FEC .......................... OK.\n",
      "    OPUS_GET_INBAND_FEC .......................... OK.\n")
 
+   err=opus_encoder_ctl(enc,OPUS_GET_INBAND_REDUNDANCY(null_int_ptr));
+   if(err!=OPUS_BAD_ARG)test_failed();
+   cfgs++;
+   CHECK_SETGET(OPUS_SET_INBAND_REDUNDANCY(i),OPUS_GET_INBAND_REDUNDANCY(&i),-1,31,
+     1,30,
+     "    OPUS_SET_INBAND_REDUNDANCY ................... OK.\n",
+     "    OPUS_GET_INBAND_REDUNDANCY ................... OK.\n")
+   i=0;
+   if(opus_encoder_ctl(enc,OPUS_SET_INBAND_REDUNDANCY(i))!=OPUS_OK)test_failed();
+
    err=opus_encoder_ctl(enc,OPUS_GET_PACKET_LOSS_PERC(null_int_ptr));
    if(err!=OPUS_BAD_ARG)test_failed();
    cfgs++;
